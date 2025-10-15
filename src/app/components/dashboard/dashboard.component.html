@@ -1,0 +1,171 @@
+<div class="dashboard-container">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Portfolio Dashboard</h1>
+      <button class="refresh-btn" (click)="refreshPortfolio()" [disabled]="loading()">
+        <span class="refresh-icon" [class.spinning]="loading()">↻</span>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading portfolio data...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading() && portfolio()" class="dashboard-content">
+    
+    <!-- Portfolio Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card total-value">
+        <div class="card-header">
+          <h3>Total Portfolio Value</h3>
+          <div class="card-icon">💰</div>
+        </div>
+        <div class="card-value" [appHighlight]="getHighlightType(portfolio()!.totalGainLoss)">
+          {{ portfolio()!.totalValue | currency }}
+        </div>
+        <div class="card-change" [appHighlight]="getHighlightType(portfolio()!.totalGainLoss)">
+          {{ portfolio()!.totalGainLoss | currency: 'USD': true }}
+          ({{ portfolio()!.totalGainLossPercentage | percentage }})
+        </div>
+      </div>
+
+      <div class="summary-card total-investments">
+        <div class="card-header">
+          <h3>Total Investments</h3>
+          <div class="card-icon">📊</div>
+        </div>
+        <div class="card-value">{{ portfolio()!.investments.length }}</div>
+        <div class="card-subtitle">Active Holdings</div>
+      </div>
+
+      <div class="summary-card best-performer">
+        <div class="card-header">
+          <h3>Best Performer</h3>
+          <div class="card-icon">📈</div>
+        </div>
+        <div class="card-value" *ngIf="topPerformers().length > 0">
+          {{ topPerformers()[0].symbol }}
+        </div>
+        <div class="card-change" [appHighlight]="'positive'" *ngIf="topPerformers().length > 0">
+          {{ topPerformers()[0].gainLossPercentage | percentage }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts and Analytics Section -->
+    <div class="analytics-section">
+      
+      <!-- Asset Allocation Chart -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>Asset Allocation</h3>
+        </div>
+        <div class="allocation-chart">
+          <div class="allocation-item" *ngFor="let allocation of assetAllocationData()">
+            <div class="allocation-bar">
+              <div class="allocation-fill" [style.width.%]="allocation.percentage"></div>
+            </div>
+            <div class="allocation-info">
+              <span class="allocation-label">{{ allocation.label }}</span>
+              <span class="allocation-percentage">{{ allocation.percentage | number: '1.1-1' }}%</span>
+              <span class="allocation-value">{{ allocation.value | currency }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Summary -->
+      <div class="performance-container">
+        <div class="performance-header">
+          <h3>Performance Summary</h3>
+        </div>
+        
+        <!-- Top Performers -->
+        <div class="performance-section">
+          <h4>Top Performers</h4>
+          <div class="performance-list">
+            <div class="performance-item" *ngFor="let investment of topPerformers()">
+              <div class="investment-info">
+                <span class="investment-symbol">{{ investment.symbol }}</span>
+                <span class="investment-name">{{ investment.name }}</span>
+              </div>
+              <div class="investment-performance" [appHighlight]="'positive'">
+                {{ investment.gainLossPercentage | percentage }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Worst Performers -->
+        <div class="performance-section">
+          <h4>Worst Performers</h4>
+          <div class="performance-list">
+            <div class="performance-item" *ngFor="let investment of worstPerformers()">
+              <div class="investment-info">
+                <span class="investment-symbol">{{ investment.symbol }}</span>
+                <span class="investment-name">{{ investment.name }}</span>
+              </div>
+              <div class="investment-performance" [appHighlight]="getHighlightType(investment.gainLossPercentage)">
+                {{ investment.gainLossPercentage | percentage }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Investment Holdings Table -->
+    <div class="holdings-section">
+      <div class="holdings-header">
+        <h3>Investment Holdings</h3>
+        <a routerLink="/add-investment" class="add-investment-btn">
+          + Add Investment
+        </a>
+      </div>
+      
+      <div class="holdings-table">
+        <div class="table-header">
+          <div class="header-cell">Symbol</div>
+          <div class="header-cell">Name</div>
+          <div class="header-cell">Type</div>
+          <div class="header-cell">Quantity</div>
+          <div class="header-cell">Current Price</div>
+          <div class="header-cell">Total Value</div>
+          <div class="header-cell">Gain/Loss</div>
+          <div class="header-cell">% Change</div>
+        </div>
+        
+        <div class="table-body">
+          <div class="table-row" *ngFor="let investment of portfolio()!.investments">
+            <div class="table-cell symbol">{{ investment.symbol }}</div>
+            <div class="table-cell name">{{ investment.name }}</div>
+            <div class="table-cell type">{{ investment.assetType | assetType }}</div>
+            <div class="table-cell quantity">{{ investment.quantity | number: '1.2-4' }}</div>
+            <div class="table-cell price">{{ investment.currentPrice | currency }}</div>
+            <div class="table-cell value">{{ investment.totalValue | currency }}</div>
+            <div class="table-cell gain-loss" [appHighlight]="getHighlightType(investment.gainLoss)">
+              {{ investment.gainLoss | currency: 'USD': true }}
+            </div>
+            <div class="table-cell percentage" [appHighlight]="getHighlightType(investment.gainLossPercentage)">
+              {{ investment.gainLossPercentage | percentage }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading() && !portfolio()" class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h3>No Portfolio Data</h3>
+    <p>Start by adding your first investment to see your portfolio dashboard.</p>
+    <a routerLink="/add-investment" class="cta-button">Add Investment</a>
+  </div>
+</div>

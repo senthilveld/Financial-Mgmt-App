@@ -1,0 +1,206 @@
+<div class="form-container">
+  <!-- Form Header -->
+  <div class="form-header">
+    <h1>Add New Investment</h1>
+    <p>Enter the details of your investment to add it to your portfolio.</p>
+  </div>
+
+  <!-- Investment Form -->
+  <form [formGroup]="investmentForm" (ngSubmit)="onSubmit()" *ngIf="!showReview()" class="investment-form">
+    
+    <!-- Asset Type Selection -->
+    <div class="form-group">
+      <label for="assetType" class="form-label">
+        Asset Type <span class="required">*</span>
+      </label>
+      <select 
+        id="assetType" 
+        formControlName="assetType" 
+        class="form-select"
+        [class.error]="isFieldInvalid('assetType')">
+        <option value="">Select Asset Type</option>
+        <option *ngFor="let type of assetTypes" [value]="type">
+          {{ getAssetTypeLabel(type) }}
+        </option>
+      </select>
+      <div *ngIf="isFieldInvalid('assetType')" class="error-message">
+        {{ getErrorMessage('assetType') }}
+      </div>
+    </div>
+
+    <!-- Symbol Input -->
+    <div class="form-group">
+      <label for="symbol" class="form-label">
+        Symbol <span class="required">*</span>
+      </label>
+      <input 
+        type="text" 
+        id="symbol" 
+        formControlName="symbol" 
+        class="form-input"
+        [class.error]="isFieldInvalid('symbol')"
+        placeholder="e.g., AAPL, GOOGL, BTC"
+        maxlength="5">
+      <div *ngIf="isFieldInvalid('symbol')" class="error-message">
+        {{ getErrorMessage('symbol') }}
+      </div>
+      <div class="form-hint">
+        Enter the trading symbol (1-5 uppercase letters)
+      </div>
+    </div>
+
+    <!-- Name Input -->
+    <div class="form-group">
+      <label for="name" class="form-label">
+        Investment Name <span class="required">*</span>
+      </label>
+      <input 
+        type="text" 
+        id="name" 
+        formControlName="name" 
+        class="form-input"
+        [class.error]="isFieldInvalid('name')"
+        placeholder="e.g., Apple Inc., Bitcoin">
+      <div *ngIf="isFieldInvalid('name')" class="error-message">
+        {{ getErrorMessage('name') }}
+      </div>
+    </div>
+
+    <!-- Quantity and Price Row -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="quantity" class="form-label">
+          Quantity <span class="required">*</span>
+        </label>
+        <input 
+          type="number" 
+          id="quantity" 
+          formControlName="quantity" 
+          class="form-input"
+          [class.error]="isFieldInvalid('quantity')"
+          placeholder="0.00"
+          step="0.0001"
+          min="0.0001">
+        <div *ngIf="isFieldInvalid('quantity')" class="error-message">
+          {{ getErrorMessage('quantity') }}
+        </div>
+        <div class="form-hint">
+          Number of shares/units purchased
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="purchasePrice" class="form-label">
+          Purchase Price <span class="required">*</span>
+        </label>
+        <div class="input-group">
+          <span class="input-prefix">$</span>
+          <input 
+            type="number" 
+            id="purchasePrice" 
+            formControlName="purchasePrice" 
+            class="form-input"
+            [class.error]="isFieldInvalid('purchasePrice')"
+            placeholder="0.00"
+            step="0.01"
+            min="0.01">
+        </div>
+        <div *ngIf="isFieldInvalid('purchasePrice')" class="error-message">
+          {{ getErrorMessage('purchasePrice') }}
+        </div>
+        <div class="form-hint">
+          Price per share/unit at purchase
+        </div>
+      </div>
+    </div>
+
+    <!-- Purchase Date -->
+    <div class="form-group">
+      <label for="purchaseDate" class="form-label">
+        Purchase Date <span class="required">*</span>
+      </label>
+      <input 
+        type="date" 
+        id="purchaseDate" 
+        formControlName="purchaseDate" 
+        class="form-input"
+        [class.error]="isFieldInvalid('purchaseDate')"
+        [max]="today">
+      <div *ngIf="isFieldInvalid('purchaseDate')" class="error-message">
+        {{ getErrorMessage('purchaseDate') }}
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="investmentForm.invalid">
+        Review Investment
+      </button>
+    </div>
+  </form>
+
+  <!-- Review Section -->
+  <div *ngIf="showReview()" class="review-section">
+    <div class="review-header">
+      <h2>Review Your Investment</h2>
+      <p>Please review the details before adding to your portfolio.</p>
+    </div>
+
+    <div class="review-content">
+      <div class="review-card">
+        <div class="review-item">
+          <span class="review-label">Asset Type:</span>
+          <span class="review-value">{{ formData()?.assetType | assetType }}</span>
+        </div>
+        
+        <div class="review-item">
+          <span class="review-label">Symbol:</span>
+          <span class="review-value symbol">{{ formData()?.symbol }}</span>
+        </div>
+        
+        <div class="review-item">
+          <span class="review-label">Name:</span>
+          <span class="review-value">{{ formData()?.name }}</span>
+        </div>
+        
+        <div class="review-item">
+          <span class="review-label">Quantity:</span>
+          <span class="review-value">{{ formData()?.quantity | number: '1.2-4' }}</span>
+        </div>
+        
+        <div class="review-item">
+          <span class="review-label">Purchase Price:</span>
+          <span class="review-value">{{ formData()?.purchasePrice | currency }}</span>
+        </div>
+        
+        <div class="review-item">
+          <span class="review-label">Purchase Date:</span>
+          <span class="review-value">{{ formatDate(formData()?.purchaseDate!) }}</span>
+        </div>
+        
+        <div class="review-item total">
+          <span class="review-label">Total Investment:</span>
+          <span class="review-value total-value">{{ totalInvestment() | currency }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review Actions -->
+    <div class="review-actions">
+      <button type="button" class="btn btn-secondary" (click)="onEdit()">
+        Edit Details
+      </button>
+      <button 
+        type="button" 
+        class="btn btn-primary" 
+        (click)="onReviewSubmit()"
+        [disabled]="loading()">
+        <span *ngIf="loading()" class="loading-spinner"></span>
+        {{ loading() ? 'Adding...' : 'Add to Portfolio' }}
+      </button>
+    </div>
+  </div>
+</div>

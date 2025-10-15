@@ -1,0 +1,50 @@
+<nav class="navigation">
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a routerLink="/dashboard" class="brand-link">
+        <span class="brand-icon">📊</span>
+        <span class="brand-text">FinPort</span>
+      </a>
+    </div>
+    
+    <div class="nav-menu">
+      <a routerLink="/dashboard" 
+         class="nav-link" 
+         [class.active]="isActive('/dashboard')">
+        <span class="nav-icon">🏠</span>
+        Dashboard
+      </a>
+      
+      <a routerLink="/add-investment" 
+         class="nav-link" 
+         [class.active]="isActive('/add-investment')">
+        <span class="nav-icon">➕</span>
+        Add Investment
+      </a>
+    </div>
+    
+    <div class="nav-mobile-toggle" (click)="toggleMobileMenu()">
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+      <span class="hamburger"></span>
+    </div>
+  </div>
+  
+  <div class="nav-mobile-menu" [class.open]="mobileMenuOpen()">
+    <a routerLink="/dashboard" 
+       class="nav-mobile-link" 
+       [class.active]="isActive('/dashboard')"
+       (click)="closeMobileMenu()">
+      <span class="nav-icon">🏠</span>
+      Dashboard
+    </a>
+    
+    <a routerLink="/add-investment" 
+       class="nav-mobile-link" 
+       [class.active]="isActive('/add-investment')"
+       (click)="closeMobileMenu()">
+      <span class="nav-icon">➕</span>
+      Add Investment
+    </a>
+  </div>
+</nav>
